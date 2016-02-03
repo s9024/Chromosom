@@ -1,5 +1,4 @@
 #include <iostream>
-using namespace std;
 #include "chromosom.h"
 #include "populacja.h"
 #include <math.h>
@@ -7,8 +6,9 @@ using namespace std;
 #include<time.h>
 #include <windows.h>
 
-// prototyp funkcji
+using namespace std;
 
+// prototyp funkcji
 void genetyczny(float(*funk)(Chromosom *), int prawd_krzyz, int prawd_mut, string nazwa_funkcji);
 float func_ocen_onemax(Chromosom * c);
 float func_ocen2(Chromosom * c);
@@ -28,13 +28,13 @@ int main() {
 */
 void genetyczny(float(*funk)(Chromosom *), int prawd_krzyz, int prawd_mut, string nazwa_funkcji) {
 	cout << "\n***  " << nazwa_funkcji << "  ***\n";
-	const int rozmiar_populacji =10;
-	int ilosc_iteracji = 10;
+	const int rozmiar_populacji = 100;
+	int ilosc_iteracji = 100;
 	cout << "Rozmiar populacji : " << rozmiar_populacji << "\n";
 	//cin >> rozmiar_populacji;
 	cout << "Ilosc iteracji : " << ilosc_iteracji << "\n";;
 	//cin >> ilosc_iteracji;
-	Sleep(2500);
+	Sleep(2000);
 	Populacja * populacja = new Populacja(rozmiar_populacji);
 	int wynik_posredni = -RAND_MAX;					//-32767
 	int numer_iteracji_wyniku;
@@ -42,6 +42,7 @@ void genetyczny(float(*funk)(Chromosom *), int prawd_krzyz, int prawd_mut, strin
 	//cout << "funk :" << funk << "\n";
 	populacja->ocen(funk);
 	for (int i = 0; i < ilosc_iteracji; i++){
+		//cout << "\n Nowa Iteracja ";
 		populacja->losuj_nowa_populacje(METODA_TURNIEJOWA);
 		populacja->krzyzowanie(prawd_krzyz);
 		populacja->mutowanie(prawd_mut);
@@ -57,10 +58,10 @@ void genetyczny(float(*funk)(Chromosom *), int prawd_krzyz, int prawd_mut, strin
 	cout << "obliczone maksimum: " << (int)funk(populacja->get_wynik()) << endl;
 	//cout << "Wynik osi¹gnieto po " << numer_iteracji_wyniku << " iteracjach\n";
 }
+/*for(int i=0 i<tab.size();i++) cout<<tab[i]<<" "		wyœwietlamy zawartoœæ vectora*/
 
 /*
-*	Wzór chromosomu (21 bitów):
-*	0 0000 00000000 00000000
+*	Wzór chromosomu (21 bitów): 0 0000 00000000 00000000
 * 	czlon 0 - znak +/-
 * 	cz³on 1 - pozycja przecinka
 *	czlon 2	- wartoœæ licznika
@@ -82,8 +83,14 @@ float licz_wartosc(int kod) {
 	int poz_przecinka = (kod >> 16) & (int)(pow(2, 4) - 1);
 	float licznik = (float)((kod >> poz_przecinka) & ((int)pow(2, 16 - poz_przecinka) - 1));
 	float mianownik = (float)(kod & (int)(pow(2, (poz_przecinka)) - 1));
+	//cout << "\npoz_przecinka: \t" <<poz_przecinka;
+	//cout << "licznik: \t" << licznik;
+	//cout << "\nmianownik: \t" << mianownik;
+
 	if (mianownik == 0){
-		return 0;
+		//return 0;
+		licznik = (int)licznik % 8;
+		return licznik;
 	}
 	else{
 		if (kod & (1 << (ROZMIAR_CHROMOSOMU_BITOWO - 1))){
@@ -98,13 +105,14 @@ float licz_wartosc(int kod) {
 
 float func_ocen(Chromosom * c) {
 	float x = licz_wartosc(c->get_kod());
-	//cout << "\n x :\n" << x;
+	//cout << "\n x :\t" << x;
 	if (x>8 || x< -8){ // przedzia³ funkcji od -8 do 8
-		cout << "INT_MIN" << INT_MIN;
-		return INT_MIN;
+		//cout << "\nINT_MIN\t" << INT_MIN;
+		//return INT_MIN;
+		return 0;		//test
 	}
 	float wyn = exp(-powf((8 * x), 2) / 2) + powf((0.1*x), 2);
-	//cout << "\n func_ocen wynik: " << wyn;
+	//cout << "\n func_ocen wynik: \t " << wyn;
 	return wyn;
 }
 

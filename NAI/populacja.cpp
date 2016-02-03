@@ -8,27 +8,16 @@ Populacja::Populacja(int rozmiar)
 	this->rozmiar_populacji = rozmiar;
 	this->osobniki = new vector<Chromosom *>();
 	srand(time(NULL));
-	int max_rozmiar = pow(2, ROZMIAR_CHROMOSOMU_BITOWO) - 1;		//2097152
+	int max_rozmiar = pow(2, ROZMIAR_CHROMOSOMU_BITOWO) - 1;		//2097151
 	for (int i = 0; i < rozmiar; i++){
-		osobniki->push_back(new Chromosom(rand() & (max_rozmiar)));
-		//osobniki->push_back((rand() & (max_rozmiar)));
-		//cout << "\n osobniki :" << osobniki;
-		/*
-		cout << "rand() : " << rand() << "\n";
-		cout << "max_rozmiar : " << max_rozmiar << "\n";
-		cout << ' ' << osobniki.at(i);
+		osobniki->push_back (new Chromosom(rand() & (max_rozmiar)));
+
+		/*cout << "\nosobniki: \t" << &osobniki->at(i);
 		for (unsigned int i = 0; i < this->osobniki->size(); i++){
 			cout << this->osobniki->at(i)->get_kod() << endl;
-		}
-		*/
-		//cout << (osobniki->at(i)) << "\n";
-
-		//printListContent< Chromosom * > * osobniki;
+		}*/
 	}
-	/*int a = osobniki->size();
-	for (int i = 0; i < a; i++){
-		cout << &osobniki[i] <<endl;
-	}*/
+	//for (int i = 0; i < osobniki->size(); i++) { cout << &osobniki[i] <<endl; }*/
 }
 
 // destruktor usuwaj¹cy wszystkie osobniki z pamiêci
@@ -40,7 +29,6 @@ Populacja ::~Populacja()
 	}
 	delete osobniki;
 }
-
 
 // metoda zwraca string zawieraj¹cy kody wszystkich chromosomów populacji
 string Populacja::toString() {
@@ -56,6 +44,9 @@ void Populacja::ocen(float(*funk)(Chromosom *)) {
 	for (unsigned int i = 0; i < osobniki->size(); i++){
 		osobniki->at(i)->set_ocena((*funk)(osobniki->at(i)));
 	}
+	/*for (int i = 0; i < osobniki->size(); i++){
+		cout << &osobniki[i] << " ";
+	}	//wyœwietlamy zawartoœæ vectora**/
 }
 
 /* Losowanie populacji na trzy dostêpne sposoby:
@@ -96,22 +87,32 @@ void Populacja::losuj_nowa_populacje(int metoda) {
 		osobniki = osobniki2;
 	}
 	else if (metoda == METODA_TURNIEJOWA){
+		//cout << "\n metoda turniejowa!";
 		vector< Chromosom * > * osobniki2 = new vector<Chromosom *>();
 		int ilosc_wybranych_osobnikow = 0;
 		while (ilosc_wybranych_osobnikow<rozmiar_populacji){
 			Chromosom  * tmp;
 			Chromosom  * max = new Chromosom();
-			max->set_ocena(-RAND_MAX);
+			max->set_ocena(-RAND_MAX);				// 32767
 			for (int i = 0; i < WIELKOSC_TURNIEJU; i++){
+
 				tmp = osobniki->at(rand() % rozmiar_populacji);
 
+			/*	cout << "\n\ntmp  osobniki->at(rand() % rozmiar_populacji)\t" << tmp;
+				//losowanie przedstawiciela
+				int tmp1 = tmp->get_ocena();
+				cout << "\ntmp-> get_ocena()\t" << tmp1;
+				int max1 = max->get_ocena();
+				cout << "\n max-> get_ocena()\t" << max1;
+			*/
 				if (tmp->get_ocena() > max->get_ocena()){
+					//cout << "\n tmp>max ocena wieksza - zmieniamy wartosc";
 					max->set_ocena(tmp->get_ocena());
 					max->set_kod(tmp->get_kod());
 				}
 			}
 			/*
-		rozne algorytmy selekcji
+		rozne algorytmy selekcji 
 		moze porownac z czyms innym
 			*/
 			osobniki2->push_back(new Chromosom(max->get_kod()));
@@ -125,6 +126,7 @@ void Populacja::losuj_nowa_populacje(int metoda) {
 		int max_kod = pow(2, ROZMIAR_CHROMOSOMU_BITOWO) - 1;		//2097151 
 		for (int i = 0; i < this->rozmiar_populacji; i++){
 			osobniki->at(i)->set_kod(rand() & max_kod);
+			//cout << "\nosobnik i: \t" << osobniki->at(i);
 		}
 	}
 	else{
